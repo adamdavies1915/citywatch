@@ -2,11 +2,11 @@
 
 A deterministic monitor for New Orleans public meetings and announcements about cycling, walking, transit, and urban development.
 
-**The first version collects sources, tracks changes, produces email previews, and supports Mailjet delivery.** Scanning and previewing do not send email. The explicit `send` command does. No recurring job has been installed.
+**The first version collects sources, tracks changes, produces email previews, and supports Mailjet delivery.** Scanning and previewing do not send email. The explicit `send` command does. The hosted instance runs on Coolify with persistent storage and email enabled, waiting one hour between completed scans.
 
 ## Run
 
-Python 3.9+ on macOS or Linux. Optional OCR uses local `pdftoppm` (Poppler) and `tesseract` executables. Both are available on this machine. On a new machine, install them separately or set `"ocr": false` in the config:
+Python 3.9+ on macOS or Linux. Optional OCR uses local `pdftoppm` (Poppler) and `tesseract` executables. On a new machine, install them separately or set `"ocr": false` in the config:
 
 ```sh
 uv venv .venv --python python3
@@ -70,14 +70,16 @@ Use the same config, sources, and date as the original collection so request URL
 The original read-only research audit remains available:
 
 ```sh
+python3 scripts/audit_sources.py
+# After downloading the source snapshots:
 python3 scripts/audit_sources.py --offline
 ```
 
 ## Scheduling and email integration
 
-`scripts/run_monitor.sh` is a scheduler-ready entry point. For an hourly local collection, a scheduler can invoke it with the absolute project path; none has been registered yet. The process lock prevents overlap. Keep `var/` on persistent storage and review coverage failures. No server, cloud service, or subscription is needed to preview locally.
+`scripts/run_monitor.sh` is a scheduler-ready entry point. For an hourly local collection, a scheduler can invoke it with the absolute project path; the hosted deployment uses the container worker instead. The process lock prevents overlap. Keep `var/` on persistent storage and review coverage failures. No server, cloud service, or subscription is needed to preview locally.
 
-Mailjet credentials and sender/recipient settings are loaded from environment variables or an ignored `.env`; see `.env.example`. The project-specific `.env` has owner-only permissions. Secrets are excluded from the Docker build context.
+Mailjet credentials and sender/recipient settings are loaded from environment variables or an ignored `.env`; see `.env.example`. Secrets are excluded from the Docker build context.
 
 ```sh
 .venv/bin/python -m citywatch check-email   # Mailjet sandbox; no delivery or acknowledgement
@@ -86,7 +88,7 @@ Mailjet credentials and sender/recipient settings are loaded from environment va
 
 Mailjet batches are saved before sending and retried with identical content, a stable campaign ID, and Mailjet's duplicate-suppression flag. Outbox rows are acknowledged only after Mailjet accepts the request. A network timeout retains the batch; review the provider's status before retrying ambiguous failures. Acceptance is not proof of inbox delivery. Unit tests cover sandbox behavior, failure preservation, stable retries, and acknowledgement. The sender is the existing Lazer Nola account address, displayed as CityWatch.
 
-`Dockerfile` and `compose.yaml` prepare a background worker for Coolify or Docker Compose. It has no public port. Persist `/app/var`; configure the Mailjet environment variables and set `CITYWATCH_SEND_EMAIL=true` to enable sending after each scan. The default is scan-only. Container build/deployment has not yet been verified or performed.
+`Dockerfile` and `compose.yaml` prepare a background worker for Coolify or Docker Compose. It has no public port. Persist `/app/var`; configure the Mailjet environment variables and set `CITYWATCH_SEND_EMAIL=true` to enable sending after each scan. The default is scan-only. The container build and first worker startup have been verified on Coolify. The named `citywatch-data` volume retains the database, delivery batches, extracted text, and evidence across restarts.
 
 ## Current limits
 
@@ -97,7 +99,7 @@ Mailjet batches are saved before sending and retried with identical content, a s
 - Removal checks apply to successfully parsed Council and Legistar agenda-item lists. Document disappearance, page-number shifts, and cross-system meeting identity are not fully reconciled. A missing item is not interpreted as a vote or cancellation.
 - The default lookback is 45 days and lookahead is 60 days. Document/news limits are explicit and produce coverage issues rather than silent truncation. Increase them for a broader initial collection.
 - Downloads have a total per-attempt deadline and bounded retries. Each run re-fetches its window; there is in-run caching and content-addressed storage, but no conditional HTTP caching yet.
-- Mailjet delivery is configured; recurring execution still awaits a selected host and activation.
+- The hosted worker sends relevant changes after each scan, then waits 3,600 seconds. Initial scans and OCR can take longer; this is not a fixed hourly deadline. Mailjet accepted the initial test email.
 - DOCX and PPTX text is extracted, including mislabeled downloads. Images inside Office files and spreadsheet attachments are not yet analyzed; unsupported formats are reported.
 
 `work/` retains the earlier manual research and Whisper checkout. It is not scanned by the application.
