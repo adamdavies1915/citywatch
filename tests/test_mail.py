@@ -45,6 +45,14 @@ class MailTests(unittest.TestCase):
         self.assertEqual(len(self.store.pending()), 0)
         self.assertEqual(send(self.store, self.settings, False, success)['status'], 'nothing_to_send')
 
+    def test_refilter_does_not_mutate_prepared_retry(self):
+        def fail(payload, settings):
+            raise TimeoutError('ambiguous provider result')
+        with self.assertRaises(TimeoutError):
+            send(self.store, self.settings, False, fail)
+        self.assertEqual(self.store.refilter_pending(Matcher([])), 0)
+        self.assertEqual(len(self.store.pending()), 1)
+
 
 if __name__ == '__main__':
     unittest.main()

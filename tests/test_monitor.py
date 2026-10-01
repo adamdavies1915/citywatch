@@ -77,6 +77,30 @@ class StateTests(unittest.TestCase):
         self.assertFalse(self.matcher.match(replace(self.record, text='Councilmember Green discussed a bikeathon.')))
         self.assertTrue(self.matcher.match(replace(self.record, text='E–bike safety and shared–use paths.')))
 
+    def test_generic_budget_and_routine_land_use_are_quiet(self):
+        for text in ['Capital budget and right-of-way acquisition.',
+                     'NORD capital projects director recruitment.',
+                     'Permit for a mixed-use multifamily building.']:
+            self.assertFalse(self.matcher.match(replace(self.record, text=text)))
+        for text in ['Reduce parking minimums.', 'Zoning text amendment.',
+                     'Improve pedestrian crossings.', 'Expand bus service.']:
+            self.assertTrue(self.matcher.match(replace(self.record, text=text)))
+
+    def test_narrowing_rules_does_not_report_source_removal(self):
+        broad = Matcher([{'id': 'broad', 'priority': 'potential', 'pattern': 'capital budget'}])
+        record = replace(self.record, text='Capital budget')
+        self.store.observe(record, broad, self.today)
+        self.assertFalse(self.observe(record))
+        self.assertEqual(self.store.refilter_pending(self.matcher), 1)
+        self.assertFalse(self.store.pending())
+
+    def test_refilter_preserves_real_removed_match_alert(self):
+        self.observe(self.record)
+        self.observe(replace(self.record, text='Roll call.'))
+        self.store.refilter_pending(self.matcher)
+        self.assertEqual(len(self.store.pending()), 2)
+        self.assertTrue(json.loads(self.store.pending()[-1]['previous_matches']))
+
     def test_removed_item_alerts_without_claiming_cancellation(self):
         record = replace(self.record, key='legistar:1:item:10')
         self.observe(record)

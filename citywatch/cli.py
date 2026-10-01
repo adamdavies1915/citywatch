@@ -37,6 +37,7 @@ def main():
         coverage = args.state / 'coverage.json'
         if args.command in ('check-email', 'send'):
             from .mail import load_env, send
+            store.refilter_pending(Matcher(config['rules']))
             try:
                 result = send(store, load_env(args.env_file), sandbox=args.command == 'check-email')
             except Exception as error:
@@ -55,6 +56,7 @@ def main():
         if any(s not in config['sources'] for s in sources):
             parser.error('Unknown or disabled source')
         matcher = Matcher(config['rules'])
+        store.refilter_pending(matcher)
         started = datetime.now(ZONE).isoformat()
         with store.db:
             run_id = store.db.execute('INSERT INTO runs(started_at) VALUES(?)', (started,)).lastrowid

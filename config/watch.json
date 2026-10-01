@@ -42,12 +42,7 @@
     {
       "id": "land_use",
       "priority": "policy",
-      "pattern": "\\b(?:parking (?:minimums?|requirements?)|mixed[ -]use|multi[ -]?family|adaptive reuse|transfer of development rights?|zoning (?:text|change|amendments?))\\b"
-    },
-    {
-      "id": "street_projects",
-      "priority": "potential",
-      "pattern": "\\b(?:resurfacing|pavement markings|right[ -]of[ -]way|capital (?:budget|projects?)|bridge (?:repair|reconstruction)|corridor improvements)\\b"
+      "pattern": "\\b(?:parking (?:minimums?|requirements?)|transfer of development rights?|zoning text(?: amendments?)?|transit[ -]oriented (?:development|communities)|housing density|density bonuses?|upzoning)\\b"
     },
     {
       "id": "watched_projects",

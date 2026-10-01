@@ -110,7 +110,9 @@ class Store:
                 relevant_change = (matches or old_matches) and (not previous or previous['signature'] != signature)
                 # First observations of old material are a quiet baseline. Later revisions still alert.
                 historical = bool(record.when and record.when[:10] < today.isoformat())
-                notify = relevant_change and not baseline and (previous or include_history or not historical)
+                rules_changed = previous and previous['rule_version'] != matcher.version
+                # Narrowing a rule is not evidence that source text was removed.
+                notify = relevant_change and not baseline and (previous or include_history or not historical) and not (rules_changed and not matches)
                 if notify:
                     change = 'new' if not previous else ('rules_changed' if previous['rule_version'] != matcher.version else 'updated')
                     if record.status == 'cancelled':
@@ -127,6 +129,33 @@ class Store:
 
     def pending(self):
         return [dict(row) for row in self.db.execute("SELECT * FROM outbox WHERE status='pending' ORDER BY id")]
+
+    def refilter_pending(self, matcher):
+        """Apply current rules to unsent alerts without changing an attempted batch."""
+        protected = set()
+        if self.db.execute("SELECT 1 FROM sqlite_master WHERE name='deliveries'").fetchone():
+            for row in self.db.execute("SELECT ids FROM deliveries WHERE status='prepared'"):
+                protected.update(json.loads(row['ids']))
+        suppressed = 0
+        with self.db:
+            for row in self.pending():
+                if row['id'] in protected:
+                    continue
+                record = Record(**json.loads(row['payload']))
+                matches = matcher.match(record)
+                previous = []
+                if row['change'] == 'matching_text_removed':
+                    for old in json.loads(row['previous_matches']):
+                        evidence = Record('previous', record.source, '', record.url,
+                                          'agenda_item', old['excerpt'])
+                        previous.extend(matcher.match(evidence))
+                if not matches and not previous:
+                    self.db.execute("UPDATE outbox SET status='suppressed' WHERE id=?", (row['id'],))
+                    suppressed += 1
+                else:
+                    self.db.execute('UPDATE outbox SET matches=?, previous_matches=? WHERE id=?',
+                                    (json.dumps(matches), json.dumps(previous), row['id']))
+        return suppressed
 
     def reconcile_items(self, prefix, current_keys, matcher, today):
         """Only call after a complete, successfully parsed agenda-item listing."""
