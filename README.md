@@ -86,7 +86,7 @@ Mailjet credentials and sender/recipient settings are loaded from environment va
 .venv/bin/python -m citywatch send          # Actually sends the pending digest
 ```
 
-Mailjet batches are saved before sending and retried with identical content, a stable campaign ID, and Mailjet's duplicate-suppression flag. Outbox rows are acknowledged only after Mailjet accepts the request. A network timeout retains the batch; review the provider's status before retrying ambiguous failures. Acceptance is not proof of inbox delivery. Unit tests cover sandbox behavior, failure preservation, stable retries, and acknowledgement. The sender is the existing Lazer Nola account address, displayed as CityWatch.
+Mailjet batches are saved before sending and retried with identical content, a stable campaign ID, and Mailjet's duplicate-suppression flag. Outbox rows are acknowledged only after Mailjet accepts the request. A network timeout retains the batch; review the provider's status before retrying ambiguous failures. Acceptance is not proof of inbox delivery. Unit tests cover sandbox behavior, failure preservation, stable retries, and acknowledgement. The sender must be an active, verified address in the Mailjet account, displayed as CityWatch. API acceptance alone does not establish sender validation or delivery; verify sender status before activation.
 
 `Dockerfile` and `compose.yaml` prepare a background worker for Coolify or Docker Compose. It has no public port. Persist `/app/var`; configure the Mailjet environment variables and set `CITYWATCH_SEND_EMAIL=true` to enable sending after each scan. The default is scan-only. The container build and first worker startup have been verified on Coolify. The named `citywatch-data` volume retains the database, delivery batches, extracted text, and evidence across restarts.
 
@@ -99,7 +99,7 @@ Mailjet batches are saved before sending and retried with identical content, a s
 - Removal checks apply to successfully parsed Council and Legistar agenda-item lists. Document disappearance, page-number shifts, and cross-system meeting identity are not fully reconciled. A missing item is not interpreted as a vote or cancellation.
 - The default lookback is 45 days and lookahead is 60 days. Document/news limits are explicit and produce coverage issues rather than silent truncation. Increase them for a broader initial collection.
 - Downloads have a total per-attempt deadline and bounded retries. Each run re-fetches its window; there is in-run caching and content-addressed storage, but no conditional HTTP caching yet.
-- The hosted worker sends relevant changes after each scan, then waits 3,600 seconds. Initial scans and OCR can take longer; this is not a fixed hourly deadline. Mailjet accepted the initial test email.
+- The hosted worker sends relevant changes after each scan, then waits 3,600 seconds. Initial scans and OCR can take longer; this is not a fixed hourly deadline. A corrected test using a verified sender reached Mailjet status `sent`; the original unverified sender was replaced.
 - DOCX and PPTX text is extracted, including mislabeled downloads. Images inside Office files and spreadsheet attachments are not yet analyzed; unsupported formats are reported.
 
 `work/` retains the earlier manual research and Whisper checkout. It is not scanned by the application.
