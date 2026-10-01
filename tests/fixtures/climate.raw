@@ -1,0 +1,58 @@
+<main class="home" id="zone-content">
+<!-- SECTION - Intersection Target -->
+<div class="intersection-target"></div>
+<!-- SECTION - Main Content -->
+<div class="container meetings-today">
+<div class="row"><div class="col-sm-8"><div class="gradient-bar"></div>
+<div class="h1">Meetings</div></div><div class="col-sm-4"><p class="h5 text-uppercase" style="text-align: right;"><i aria-hidden="true" class="fa fa-bell red-text"></i> Receive Meeting Notices</p>
+<p style="text-align: right;"><a class="btn btn-lg btn-primary" href="https://public.govdelivery.com/accounts/LANOLA/subscriber/topics?qsp=LANOLA_QS_COUNCIL" target="_blank">Subscribe</a></p>
+</div> </div>
+</div><section class="">
+<div class="container">
+<div id="p_lt_WebPartZone2_ZoneContent_pageplaceholder_p_lt_WebPartZone1_Primary_Content_BootstrapLayout_Calendar_sys_pnlUpdate">
+<div class="row"><div class="col-sm-12">
+<a class="FeedLink" href="https://council.nola.gov/meetings/2026/committees/climate-change-and-sustainability/20260923-climate-change-and-sustainability/?rss=events" id="p_lt_WebPartZone2_ZoneContent_pageplaceholder_p_lt_WebPartZone1_Primary_Content_BootstrapLayout_Calendar_plcUp_BootstrapLayout_Calendar_1_EventsRSSFeed_lnkFeedImg"><img alt="Events" class="FeedIcon" id="p_lt_WebPartZone2_ZoneContent_pageplaceholder_p_lt_WebPartZone1_Primary_Content_BootstrapLayout_Calendar_plcUp_BootstrapLayout_Calendar_1_EventsRSSFeed_imgFeed" src="/App_Themes/Default/Images/Design/Controls/IconSelector/RSS/01_Orange/16.png"/></a><a class="FeedLink" href="https://council.nola.gov/meetings/2026/committees/climate-change-and-sustainability/20260923-climate-change-and-sustainability/?rss=events" id="p_lt_WebPartZone2_ZoneContent_pageplaceholder_p_lt_WebPartZone1_Primary_Content_BootstrapLayout_Calendar_plcUp_BootstrapLayout_Calendar_1_EventsRSSFeed_lnkFeedText"><span class="FeedCaption" id="p_lt_WebPartZone2_ZoneContent_pageplaceholder_p_lt_WebPartZone1_Primary_Content_BootstrapLayout_Calendar_plcUp_BootstrapLayout_Calendar_1_EventsRSSFeed_ltlFeed">Upcoming events RSS</span></a>
+<div class="meeting-summary-content">
+<h1>Climate Change and Sustainability Committee </h1>
+  September 23, 2026 10:00 AM
+  
+  <p>City Council Chamber</p>
+<ol>
+<li><strong>Roll Call </strong><br/>
+	 </li>
+<li value="2"><strong>Approval of the Minutes</strong><br/>
+	August 26, 2026, Climate Change and Sustainability Committee<br/>
+	 </li>
+<li value="3"><strong>Resolution – Distributed Energy Resource Program – UD-24-02</strong><br/>
+	The committee will consider a resolution to approve Phase 3 Battery Energy Storage System Distributed Energy Resource Pilot Program.<br/>
+	 </li>
+<li value="4"><strong>Presentation – Lafitte Greenway Improvements</strong><br/>
+	The Lafitte Greenway Partnership will present on the Lafitte Greenway improvements and status of completion of the final half-mile tract.<br/>
+	 </li>
+<li value="5"><strong>Motion - West End Drainage Project</strong><br/>
+	The committee will consider a motion to enter into a Professional Services Agreement to provide professional design, engineering, and construction management services for the West End Drainage Modular Tank System project.<br/>
+	 </li>
+<li value="6"><strong>Adjournment</strong></li>
+</ol>
+<!--Agenda for Committees-->
+<!--Agenda Attachment-->
+<a class="btn btn-primary" href="https://cityofno.granicus.com/GeneratedAgendaViewer.php?view_id=42&amp;event_id=25006" target="_blank">View agenda</a> <!-- Granicus Link -->
+<!--Unused at Launch-->
+<!--PDF Agenda-->
+<!--MS Word Agenda-->
+<a class="btn btn-primary" href="https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=hfTLCLccAkqaIQ3ZtFuf9xUokjpykQNOmYGfsy0mNMFUNzhGVVAxMkZOVVBVWlFZNkJZTlJXR1VBTyQlQCN0PWcu" target="_blank">Submit Public Comment</a>
+<!-- Granicus Link -->
+<!--Summary of Regular Meeting-->
+</div>
+<p><small>Created on: 9/3/2026 1:44:57 PM | Last updated: 9/21/2026 1:34:29 PM</small></p>
+<p></p>
+</div></div>
+</div><div class="hori-line desktop-only"></div>
+<a class="section-top-link" href="#top">Back to top <i aria-hidden="true" class="fa fa-arrow-up"></i></a>
+</div>
+</section><div class="cookie-banner"><div class="cookie-content"><span> <i class="bx bx-cookie bx-sm cookie-icon"></i> </span>
+<p class="cookie-text">This website uses cookies to ensure you get the best experience. By using our website, you agree to our <a class="cookie-link" href="https://nola.gov/next/site/" rel="noopener noreferrer" target="_blank">cookie policy</a>.</p>
+</div>
+<div class="btn-container"><a class="cookie-btn functional" id="only-necessary">Reject Additional Cookies</a> <a class="cookie-btn" id="accept-all">Accept All</a></div>
+</div>
+</main>

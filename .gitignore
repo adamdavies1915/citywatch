@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+var/
+work/
+research/*.raw
+research/audit-summary.json
+research/fetch-manifest.json

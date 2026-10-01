@@ -1,0 +1,59 @@
+{
+  "lookback_days": 45,
+  "lookahead_days": 60,
+  "timeout_seconds": 30,
+  "max_download_bytes": 25000000,
+  "max_documents_per_run": 350,
+  "max_news_pages": 3,
+  "sources": [
+    "council",
+    "legistar",
+    "planning",
+    "council_news",
+    "mayor_news",
+    "public_works_news"
+  ],
+  "rules": [
+    {
+      "id": "cycling",
+      "priority": "direct",
+      "pattern": "\\b(?:bicycles?|bikes?|e[ -]?bikes?|bikeways?|cycling|cycle tracks?|bike[ -]sharing)\\b"
+    },
+    {
+      "id": "walking",
+      "priority": "direct",
+      "pattern": "\\b(?:pedestrians?|sidewalks?|walkways?|walkability|crosswalks?|curb ramps?|walking paths?)\\b"
+    },
+    {
+      "id": "safe_streets",
+      "priority": "direct",
+      "pattern": "\\b(?:complete streets|traffic calming|safe routes|vision zero|road diets?|protected lanes?|shared[ -]use paths?)\\b"
+    },
+    {
+      "id": "greenways",
+      "priority": "direct",
+      "pattern": "\\bgreenways?\\b"
+    },
+    {
+      "id": "transit",
+      "priority": "direct",
+      "pattern": "\\b(?:public transit|public transportation|fare[ -]free|bus (?:lanes?|stops?|routes?|service)|streetcars?|transit (?:center|service|access)|opportunity pass)\\b"
+    },
+    {
+      "id": "land_use",
+      "priority": "policy",
+      "pattern": "\\b(?:parking (?:minimums?|requirements?)|mixed[ -]use|multi[ -]?family|adaptive reuse|transfer of development rights?|zoning (?:text|change|amendments?))\\b"
+    },
+    {
+      "id": "street_projects",
+      "priority": "potential",
+      "pattern": "\\b(?:resurfacing|pavement markings|right[ -]of[ -]way|capital (?:budget|projects?)|bridge (?:repair|reconstruction)|corridor improvements)\\b"
+    },
+    {
+      "id": "watched_projects",
+      "priority": "direct",
+      "pattern": "\\b(?:lafitte greenway|connecting new orleans east|downtown transit center)\\b"
+    }
+  ],
+  "ocr": true
+}

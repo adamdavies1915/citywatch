@@ -1,0 +1,17 @@
+services:
+  citywatch:
+    build: .
+    restart: unless-stopped
+    init: true
+    environment:
+      CITYWATCH_INTERVAL_SECONDS: ${CITYWATCH_INTERVAL_SECONDS:-3600}
+      CITYWATCH_SEND_EMAIL: ${CITYWATCH_SEND_EMAIL:-false}
+      MAILJET_API_KEY: ${MAILJET_API_KEY}
+      MAILJET_SECRET_KEY: ${MAILJET_SECRET_KEY}
+      CITYWATCH_FROM_EMAIL: ${CITYWATCH_FROM_EMAIL}
+      CITYWATCH_FROM_NAME: ${CITYWATCH_FROM_NAME:-CityWatch}
+      CITYWATCH_TO_EMAIL: ${CITYWATCH_TO_EMAIL}
+    volumes:
+      - citywatch-data:/app/var
+volumes:
+  citywatch-data:

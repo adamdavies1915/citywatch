@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "citywatch"
+version = "0.1.0"
+description = "Deterministic New Orleans meeting and announcement alerts"
+requires-python = ">=3.9"
+dependencies = ["beautifulsoup4==4.15.0", "pypdf==6.19.0"]
+
+[project.scripts]
+citywatch = "citywatch.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["citywatch*"]
