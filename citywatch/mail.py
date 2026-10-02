@@ -2,6 +2,7 @@
 import base64
 import json
 import os
+import time
 import urllib.error
 import urllib.request
 from datetime import datetime, timezone
@@ -54,6 +55,21 @@ def send(store, settings, sandbox=True, transport=mailjet):
         id TEXT PRIMARY KEY, created_at TEXT NOT NULL, ids TEXT NOT NULL,
         payload TEXT NOT NULL, status TEXT NOT NULL, response TEXT)''')
     store.db.commit()
+    # Enforce cadence at delivery, not in the worker loop. Persist attempts so
+    # restarts and ambiguous provider timeouts cannot cause hourly email bursts.
+    interval = max(0, int(settings.get('CITYWATCH_EMAIL_INTERVAL_SECONDS', '86400')))
+    store.db.execute('CREATE TABLE IF NOT EXISTS email_cadence (id INTEGER PRIMARY KEY, attempted_at REAL NOT NULL)')
+    if not sandbox:
+        with store.db:
+            cadence = store.db.execute('SELECT attempted_at FROM email_cadence WHERE id=1').fetchone()
+            if cadence is None and store.db.execute("SELECT 1 FROM deliveries WHERE status='accepted' LIMIT 1").fetchone():
+                # On upgrading an existing installation, give the inbox a full
+                # quiet period instead of sending another digest immediately.
+                store.db.execute('INSERT INTO email_cadence VALUES(1,?)', (time.time(),))
+                cadence = store.db.execute('SELECT attempted_at FROM email_cadence WHERE id=1').fetchone()
+        if cadence and time.time() < cadence['attempted_at'] + interval:
+            return {'status': 'digest_deferred', 'next_attempt_at': datetime.fromtimestamp(
+                cadence['attempted_at'] + interval, timezone.utc).isoformat()}
     pending = store.db.execute("SELECT * FROM deliveries WHERE status='prepared' ORDER BY created_at LIMIT 1").fetchone()
     if pending:
         payload = json.loads(pending['payload'])
@@ -84,6 +100,10 @@ def send(store, settings, sandbox=True, transport=mailjet):
                 store.db.execute('INSERT INTO deliveries VALUES(?,?,?,?,?,NULL)',
                                  (batch_id, datetime.now(timezone.utc).isoformat(), json.dumps(ids), json.dumps(payload), 'prepared'))
     outgoing = dict(payload, SandboxMode=sandbox)
+    if not sandbox:
+        with store.db:
+            store.db.execute('INSERT INTO email_cadence VALUES(1,?) ON CONFLICT(id) DO UPDATE SET attempted_at=excluded.attempted_at',
+                             (time.time(),))
     result = transport(outgoing, settings)
     if not sandbox:
         with store.db:
