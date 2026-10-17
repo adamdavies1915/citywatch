@@ -3,7 +3,7 @@ import json
 import re
 import sqlite3
 import unicodedata
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass, field, replace
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -42,15 +42,25 @@ class Record:
 class Matcher:
     def __init__(self, rules):
         self.version = digest(rules)
-        self.rules = [(r, re.compile(r['pattern'], re.I)) for r in rules]
+        self.rules = [(r, re.compile(r['pattern'], re.I),
+                       [re.compile(pattern, re.I) for pattern in r.get('exclude_patterns', [])],
+                       [re.compile(pattern, re.I) for pattern in r.get('exclude_document_titles', [])])
+                      for r in rules]
 
     def match(self, record):
         text = normalize(record.text)
         if record.kind in ('meeting', 'announcement', 'official_summary') and normalize(record.title) not in text:
             text = normalize(record.title) + '. ' + text
         matches = []
-        for rule, regex in self.rules:
+        for rule, regex, exclusions, excluded_titles in self.rules:
+            if record.kind == 'document' and any(pattern.search(normalize(record.title)) for pattern in excluded_titles):
+                continue
+            excluded_spans = [match.span() for pattern in exclusions for match in pattern.finditer(text)]
             for match in regex.finditer(text):
+                # Ignore only the incidental mention, not other evidence on the
+                # same page. Keep the original text intact for quoted excerpts.
+                if any(start < match.end() and end > match.start() for start, end in excluded_spans):
+                    continue
                 # Sentence evidence makes unrelated edits elsewhere quiet.
                 left = text.rfind('. ', 0, match.start()) + 2
                 if left == 1:
@@ -146,8 +156,7 @@ class Store:
                 previous = []
                 if row['change'] == 'matching_text_removed':
                     for old in json.loads(row['previous_matches']):
-                        evidence = Record('previous', record.source, '', record.url,
-                                          'agenda_item', old['excerpt'])
+                        evidence = replace(record, key='previous', text=old['excerpt'])
                         previous.extend(matcher.match(evidence))
                 if not matches and not previous:
                     self.db.execute("UPDATE outbox SET status='suppressed' WHERE id=?", (row['id'],))

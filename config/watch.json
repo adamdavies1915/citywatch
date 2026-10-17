@@ -17,11 +17,19 @@
     {
       "id": "cycling",
       "priority": "direct",
+      "exclude_patterns": [
+        "\\b(?:shoes|blankets|grill|tents|debris|trash)(?:,\\s*[\\w -]+){0,5},\\s*bikes?\\b(?!\\s+(?:lanes?|racks?|parking|paths?|safety|sharing|infrastructure)\\b)"
+      ],
       "pattern": "\\b(?:bicycles?|bikes?|e[ -]?bikes?|bikeways?|cycling|cycle tracks?|bike[ -]sharing)\\b"
     },
     {
       "id": "walking",
       "priority": "direct",
+      "exclude_document_titles": ["\\bdrone flight logs?(?=[_\\W]|$)"],
+      "exclude_patterns": [
+        "\\broof\\s+walkway pads?\\b",
+        "\\bwalkway pad detail roof\\b"
+      ],
       "pattern": "\\b(?:pedestrians?|sidewalks?|walkways?|walkability|crosswalks?|curb ramps?|walking paths?)\\b"
     },
     {
@@ -32,6 +40,10 @@
     {
       "id": "greenways",
       "priority": "direct",
+      "exclude_patterns": [
+        "\\b\\d+\\s+(?:east\\s+)?greenway plaza\\b",
+        "\\bgreenway corridor\\s+others? as required\\b"
+      ],
       "pattern": "\\bgreenways?\\b"
     },
     {
@@ -40,8 +52,16 @@
       "pattern": "\\b(?:public transit|public transportation|fare[ -]free|bus (?:lanes?|stops?|routes?|service)|streetcars?|transit (?:center|service|access)|opportunity pass)\\b"
     },
     {
+      "id": "autonomous_vehicles",
+      "priority": "direct",
+      "pattern": "\\b(?:waymo|robo[ -]?taxis?|(?:autonomous|driverless|self[ -]driving|automated) (?:motor |for[ -]hire )?(?:vehicles?|cars?|taxis?)|automated driving systems?)\\b"
+    },
+    {
       "id": "land_use",
       "priority": "policy",
+      "exclude_patterns": [
+        "\\bany zoning text(?: or map)? amendments? are matters of legislative discretion\\b"
+      ],
       "pattern": "\\b(?:parking (?:minimums?|requirements?)|transfer of development rights?|zoning text(?: amendments?)?|transit[ -]oriented (?:development|communities)|housing density|density bonuses?|upzoning)\\b"
     },
     {

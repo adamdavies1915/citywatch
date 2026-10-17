@@ -25,6 +25,12 @@ Outputs in `var/preview/`:
 - `digest.eml`: multipart email draft with no recipients.
 - `outbox.json`: provider-neutral pending notification records.
 
+The email uses a narrow, mobile-friendly layout with inline styles for mail clients, readable Central Time dates, and plain-language topic labels. Matching pages from the same document and agenda item share one heading; repeated excerpts (including bullet/hyphen-spacing variants) retain all page references and OCR labels. HTML shows up to three excerpts per update, favoring different topics, with a count of additional excerpts and a source link. Plain text retains every distinct excerpt; `outbox.json` retains all original records and matches. Collection issues are summarized inside the email; a missing coverage report is labeled unavailable.
+
+Waymo, robotaxis, autonomous vehicles, and automated driving systems are explicitly watched. Previously observed records are re-evaluated against changed rules on the next scan. This does not recover documents that were never collected or are no longer within the scan window.
+
+Rules can include `exclude_patterns` to ignore incidental matched spans while preserving other evidence on the page, and `exclude_document_titles` for document-only exclusions within a topic. Current exclusions cover invoice addresses, belongings inventories, drone-flight logs, procedural zoning boilerplate, specific blank-form labels, and roof walkway pads. The [October 17 email audit](research/email-audit-2026-10-17.md) records the evidence, replay results, and remaining coverage limitations.
+
 `var/coverage.json` lists collection failures, unreadable PDF pages, unpublished agendas, pagination limits, and source discrepancies. Exit code **0** means collection completed without reported issues; **2** means coverage is incomplete (or another scan holds the lock). Valid collected material is still saved and previewed. A zero-match result is not a coverage guarantee.
 
 ## Sources

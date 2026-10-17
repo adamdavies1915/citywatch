@@ -94,6 +94,76 @@ class StateTests(unittest.TestCase):
         self.assertEqual(self.store.refilter_pending(self.matcher), 1)
         self.assertFalse(self.store.pending())
 
+    def test_autonomous_vehicle_proposals_match_without_other_transport_terms(self):
+        for text in ['Regulate Waymo operations.', 'Annual permit fees for robotaxis.',
+                     'Safety requirements for autonomous for-hire vehicles.',
+                     'Licensing driverless motor vehicles.', 'Self–driving cars.',
+                     'Automated driving systems must record each trip.']:
+            with self.subTest(text=text):
+                matches = self.matcher.match(replace(self.record, text=text))
+                self.assertIn('autonomous_vehicles', {m['rule'] for m in matches})
+        for text in ['Automated billing systems.', 'Autonomous government agencies.']:
+            self.assertFalse(self.matcher.match(replace(self.record, text=text)))
+
+    def test_new_vehicle_rule_queues_previously_observed_proposal(self):
+        old_rules = Matcher([r for r in CONFIG['rules'] if r['id'] != 'autonomous_vehicles'])
+        record = replace(self.record, text='Permit fees for autonomous vehicles.', when='2026-09-01')
+        self.assertFalse(self.store.observe(record, old_rules, self.today))
+        self.assertTrue(self.observe(record))
+        self.assertEqual(self.store.pending()[0]['change'], 'rules_changed')
+
+    def test_incidental_matches_from_delivered_digests_are_excluded(self):
+        cases = [
+            ('Invoice', 'Koch Energy Services, LLC 20 Greenway Plaza Suite 800 Houston, TX 77046'),
+            ('Invoice', 'Entergy New Orleans, LLC 20 East Greenway Plaza Statement Number: 77199'),
+            ('Application form', 'Greenway Corridor Others as required ADDITIONAL INFORMATION'),
+            ('Report', 'Shoes, blankets, grill, bike tables, toys, fixtures, trashcan, needles, sofas, tires, coolers'),
+            ('Staff report', 'The City Planning Commission recommendation and the City Council decision on any zoning text or map amendment are matters of legislative discretion.'),
+            ('Staff report', 'The City Planning Commission recommendation and the City Council decision on any zoning text amendment are matters of legislative discretion.'),
+            ('NOPD Drone Flight Logs_2026 YTD_1October', 'Event Overwatch (check pedestrian flow and traffic flow to French Quarter after Sugar Bowl)'),
+            ('Roof details', 'CMU WALL & ROOF SURFACE - OPEN ROOF WALKWAY PADS'),
+        ]
+        for title, text in cases:
+            with self.subTest(title=title, text=text):
+                self.assertFalse(self.matcher.match(replace(self.record, kind='document', title=title, text=text)))
+
+    def test_exclusions_preserve_real_evidence_on_same_page(self):
+        cases = [
+            ('20 Greenway Plaza, Houston. Extend the Lafitte Greenway.', 'greenways'),
+            ('Greenway Corridor Others as required. Build a new greenway corridor.', 'greenways'),
+            ('Shoes, blankets, grill, bike racks will be installed along Canal Street.', 'cycling'),
+            ('Shoes, blankets, grill, bike tables, toys. Add bike parking.', 'cycling'),
+            ('Any zoning text amendment are matters of legislative discretion. Amend parking requirements.', 'land_use'),
+            ('ROOF WALKWAY PADS. Repair the public walkway.', 'walking'),
+        ]
+        for text, rule in cases:
+            with self.subTest(text=text):
+                self.assertIn(rule, {m['rule'] for m in self.matcher.match(replace(self.record, text=text))})
+        announcement = replace(self.record, kind='announcement', title='Drone flight logs review',
+                               text='Council proposes pedestrian safety rules for drones.')
+        self.assertTrue(self.matcher.match(announcement))
+
+    def test_actual_policy_and_infrastructure_examples_still_match(self):
+        for text in [
+            'Amend Article 11 and Article 22 to remove off-street parking requirements for single family homes.',
+            'Amend Article 17.6.D and Article 22 to facilitate the installation of additional bike racks along Canal Street.',
+            'Improving pedestrian walkways along Andrew Higgins Drive.',
+            'Support the City’s bicycle plan by providing dedicated and protected travel lanes.',
+            'Implement a safety-first e-bike rebate program with mandatory in-person training.',
+            'Citywide Specialty Sidewalk Bid & Award Bonds 2026 Bonds $500,000.00',
+            'The plans shall indicate the installation of at least 15 short-term bicycle parking spaces.',
+        ]:
+            with self.subTest(text=text):
+                self.assertTrue(self.matcher.match(replace(self.record, text=text)))
+
+    def test_refilter_removed_evidence_respects_document_title_exclusions(self):
+        old_rules = Matcher([{'id': 'walking', 'priority': 'direct', 'pattern': 'sidewalk'}])
+        record = replace(self.record, kind='document', title='NOPD Drone Flight Logs_2026', text='Blocking sidewalk.')
+        self.store.observe(record, old_rules, self.today)
+        self.store.observe(replace(record, text='Roll call.'), old_rules, self.today)
+        self.assertEqual(self.store.refilter_pending(self.matcher), 2)
+        self.assertFalse(self.store.pending())
+
     def test_refilter_preserves_real_removed_match_alert(self):
         self.observe(self.record)
         self.observe(replace(self.record, text='Roll call.'))
