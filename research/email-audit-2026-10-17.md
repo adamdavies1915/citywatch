@@ -95,3 +95,5 @@ On the October 16 content, grouping alone reduces 85 repeated headings to 25 doc
 Tests cover false-positive examples, retained true-positive examples, mixed pages, rule-change replay, removal/refilter behavior, safe immutable retries, email evidence grouping, escaping, and MIME alternatives. The workspace lacks Poppler and Tesseract, so its PDF/OCR test cannot pass there. Running the updated code and complete suite in an isolated production-image container with both dependencies installed passed **all 45 tests**.
 
 This audit records the evidence and pre-deployment validation. Deployment and production-data replay results are recorded separately. A rule change re-evaluates previously observed records when they are collected again; it does not recover uncollected or out-of-window material.
+
+Subsequent verification: [release and backfill report](release-status-2026-10-17.md) records the deployed release, the 10,291-record production snapshot replay, zero additional alerts on repetition, and the narrow vehicle-location exclusion discovered by that replay.

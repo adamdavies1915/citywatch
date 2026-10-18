@@ -14,5 +14,18 @@ services:
       CITYWATCH_TO_EMAIL: ${CITYWATCH_TO_EMAIL}
     volumes:
       - citywatch-data:/app/var
+  citywatch-slack:
+    build: .
+    command: ["python", "-m", "citywatch.slack_service", "run"]
+    restart: unless-stopped
+    init: true
+    environment:
+      CITYWATCH_SLACK_ENABLED: ${CITYWATCH_SLACK_ENABLED:-false}
+      CITYWATCH_SLACK_INTERVAL_SECONDS: ${CITYWATCH_SLACK_INTERVAL_SECONDS:-86400}
+      CITYWATCH_SLACK_TEAM_ID: ${CITYWATCH_SLACK_TEAM_ID:-T031RQ3EFAP}
+      CITYWATCH_SLACK_CHANNEL_ID: ${CITYWATCH_SLACK_CHANNEL_ID:-C08M32G5XDL}
+      SLACK_BOT_TOKEN: ${SLACK_BOT_TOKEN:-}
+    volumes:
+      - citywatch-data:/app/var
 volumes:
   citywatch-data:

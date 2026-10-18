@@ -73,6 +73,12 @@ class StateTests(unittest.TestCase):
         self.assertTrue(self.observe(self.record))
         self.assertEqual(self.store.pending()[0]['change'], 'rules_changed')
 
+    def test_vehicle_location_dispatch_does_not_mean_self_driving(self):
+        record = replace(self.record, text='Automated Vehicle Location Dispatching for the fire department.')
+        self.assertFalse(self.matcher.match(record))
+        mixed = replace(record, text=record.text + ' Waymo seeks autonomous vehicle permits.')
+        self.assertTrue(self.matcher.match(mixed))
+
     def test_boundaries_and_unicode(self):
         self.assertFalse(self.matcher.match(replace(self.record, text='Councilmember Green discussed a bikeathon.')))
         self.assertTrue(self.matcher.match(replace(self.record, text='E–bike safety and shared–use paths.')))

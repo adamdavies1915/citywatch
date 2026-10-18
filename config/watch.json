@@ -54,6 +54,7 @@
     {
       "id": "autonomous_vehicles",
       "priority": "direct",
+      "exclude_patterns": ["\\bautomated vehicle location\\b"],
       "pattern": "\\b(?:waymo|robo[ -]?taxis?|(?:autonomous|driverless|self[ -]driving|automated) (?:motor |for[ -]hire )?(?:vehicles?|cars?|taxis?)|automated driving systems?)\\b"
     },
     {

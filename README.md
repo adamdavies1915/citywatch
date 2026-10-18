@@ -96,6 +96,10 @@ Mailjet batches are saved before sending and retried with identical content, a s
 
 `Dockerfile` and `compose.yaml` prepare a background worker for Coolify or Docker Compose. It has no public port. Persist `/app/var`; configure the Mailjet environment variables and set `CITYWATCH_SEND_EMAIL=true` to enable daily digest delivery. The default is scan-only. The container build and first worker startup have been verified on Coolify. The named `citywatch-data` volume retains the database, delivery batches, extracted text, and evidence across restarts.
 
+## Slack digests
+
+Slack digests are available as a separate, outbound-only worker. The initial destination is Bike Easy's `#policy-design`; email continues independently. Follow [the Slack setup guide](docs/slack-setup.md) to install the minimal posting-only app, store its bot token, and enable `CITYWATCH_SLACK_ENABLED`. No interactive replies or Slack message-reading permissions are enabled. The service persists its own cursor and message acknowledgements, resumes confirmed partial deliveries, respects rate limits, and pauses ambiguous sends for review. It starts with future alert revisions rather than reposting the email archive. Both workers share the existing persistent volume.
+
 ## Current limits
 
 - No recording transcription or spoken-only coverage.
